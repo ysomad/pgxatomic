@@ -30,6 +30,7 @@ func NewRunner(tx txStarter) *runner {
 	return &runner{tx: tx}
 }
 
+// Run is a helper method for Run function.
 func (r *runner) Run(ctx context.Context, txFunc func(ctx context.Context) error) error {
 	return Run(ctx, r.tx, txFunc)
 }
