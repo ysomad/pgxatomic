@@ -31,10 +31,6 @@ func (r *runner) Run(ctx context.Context, txFunc func(ctx context.Context) error
 	return execTxFunc(ctx, r.db, r.opts, txFunc)
 }
 
-func Run(ctx context.Context, db txStarter, txFunc func(ctx context.Context) error) error {
-	return execTxFunc(ctx, db, pgx.TxOptions{}, txFunc)
-}
-
 // execTxFunc executes txFunc withing shared transaction.
 func execTxFunc(ctx context.Context, db txStarter, opts pgx.TxOptions, txFunc func(ctx context.Context) error) error {
 	return pgx.BeginTxFunc(ctx, db, opts, func(tx pgx.Tx) error {

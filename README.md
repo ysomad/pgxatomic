@@ -37,16 +37,7 @@ func (r *orderRepo) CreateOrder(ctx context.Context, cost int) order {
 }
 ```
 
-2. Wrap usecase method calls within txFunc using `atomic.Run` function
-```go
-_ = pgxatomic.Run(context.Background(), pool, func(txCtx context.Context) error {
-    _ = orderService.Create(txCtx)
-    _ = balanceService.Withdraw(txCtx)
-    return nil
-})
-```
-
-Or its possible to use `pgxatomic.runner`:
+2. Wrap usecase method calls within txFunc using `pgxatomic.runner` function
 ```go
 conf, _ := pgxpool.ParseConfig("postgres://user:pass@localhost:5432/postgres")
 pool, _ := pgxpool.NewWithConfig(context.Background(), conf)
