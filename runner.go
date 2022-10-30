@@ -13,24 +13,24 @@ type txStarter interface {
 }
 
 type runner struct {
-	tx   txStarter
+	db   txStarter
 	opts pgx.TxOptions
 }
 
-func NewRunner(tx txStarter, opts pgx.TxOptions) (*runner, error) {
-	if tx == nil {
-		return nil, errors.New("atomic: tx cannot be nil")
+func NewRunner(db txStarter, opts pgx.TxOptions) (*runner, error) {
+	if db == nil {
+		return nil, errors.New("atomic: db cannot be nil")
 	}
 
 	return &runner{
-		tx:   tx,
+		db:   db,
 		opts: opts,
 	}, nil
 }
 
 // Run is a helper method for runWithOpts function.
 func (r *runner) Run(ctx context.Context, txFunc func(ctx context.Context) error) error {
-	return runWithOpts(ctx, r.tx, r.opts, txFunc)
+	return runWithOpts(ctx, r.db, r.opts, txFunc)
 }
 
 // Run executes txFunc within shared transaction.
