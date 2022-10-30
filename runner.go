@@ -18,7 +18,7 @@ type runner struct {
 
 func NewRunner(db txStarter, opts pgx.TxOptions) (*runner, error) {
 	if db == nil {
-		return nil, errors.New("atomic: db cannot be nil")
+		return nil, errors.New("pgxatomic: db cannot be nil")
 	}
 
 	return &runner{
