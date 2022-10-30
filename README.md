@@ -11,7 +11,7 @@ For example there it is TWO entities `Order` and `UserBalance` and they has sepa
 - create separate repository `OrderUserBalance` and run query in a transaction or CTE within - increases amount of code to write and quickly turn into noodles from repositories with 1-2 methods and long ugly names
 
 And there it is also third solution which is considered within the unit of work pattern:
-- ***`Order` and `UserBalance` has their own repositories with simple CRUD queries shares the same context with transaction or without, depends on the caller - cleanest implementation and Unit of Work uses the same approach (allows to not worry about transaction in business logic or repository layers)***
+- ***`Order` and `UserBalance` has their own repositories with simple CRUD queries shares the same context with transaction or without, depends on the caller - cleanest implementation which allows to not worry about transaction in business logic or repository layers***
 
 ## Usage
 1. Repository method has to call wrapped query functions from the package. For example `atomic.Query`
