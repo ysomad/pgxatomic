@@ -3,7 +3,6 @@ package pgxatomic
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -28,47 +27,17 @@ func NewRunner(db txStarter, opts pgx.TxOptions) (*runner, error) {
 	}, nil
 }
 
-// Run is a helper method for runWithOpts function.
 func (r *runner) Run(ctx context.Context, txFunc func(ctx context.Context) error) error {
-	return runWithOpts(ctx, r.db, r.opts, txFunc)
+	return execTxFunc(ctx, r.db, r.opts, txFunc)
 }
 
-// Run executes txFunc within shared transaction.
 func Run(ctx context.Context, db txStarter, txFunc func(ctx context.Context) error) error {
-	tx, err := db.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return fmt.Errorf("atomic: begin transaction - %w", err)
-	}
-	return run(ctx, tx, txFunc)
+	return execTxFunc(ctx, db, pgx.TxOptions{}, txFunc)
 }
 
-// runWithOpts executes txFunc withing shared transaction with pgx.TxOptions.
-func runWithOpts(ctx context.Context, db txStarter, opts pgx.TxOptions, txFunc func(ctx context.Context) error) error {
-	// tx, err := db.BeginTx(ctx, opts)
-	// if err != nil {
-	// 	return fmt.Errorf("atomic: begin transaction - %w", err)
-	// }
-	// return run(ctx, tx, txFunc)
-
+// execTxFunc executes txFunc withing shared transaction.
+func execTxFunc(ctx context.Context, db txStarter, opts pgx.TxOptions, txFunc func(ctx context.Context) error) error {
 	return pgx.BeginTxFunc(ctx, db, opts, func(tx pgx.Tx) error {
 		return txFunc(withTx(ctx, tx))
 	})
-}
-
-// run executes txFunc with injected transaction in context and commits or rollback on error.
-func run(ctx context.Context, tx pgx.Tx, txFunc func(ctx context.Context) error) (err error) {
-	err = txFunc(withTx(ctx, tx))
-	if err != nil {
-		if rbErr := tx.Rollback(ctx); rbErr != nil {
-			return fmt.Errorf("atomic: rollback - %w", rbErr)
-		}
-
-		return err
-	}
-
-	if err = tx.Commit(ctx); err != nil {
-		return fmt.Errorf("atomic: commit - %w", err)
-	}
-
-	return nil
 }
