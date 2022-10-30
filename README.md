@@ -16,25 +16,29 @@ And there it is also a third solution which is considered in this repository:
 ## Example Usage
 1. Repository method has to call wrapped query functions from the package. For example `atomic.Query`
 ```go
-type repo struct {
+type orderRepo struct {
     pool *pgxpool.Pool
 }
 
-type user struct {
+type order struct {
     ID uuid.UUID
-    Name string
+    Cost int
 }
 
-func (r *repo) getUserByID(ctx context.Context, id uuid.UUID) user {
-    rows, _ := atomic.Query(ctx, r.pool, "select * from user where id = $1", id)
-    u, _ := pgx.CollectOneRow(rows, pgx.RowToStructByPos[user])
-    return u
+func (r *orderRepo) query(ctx, sql string, args ...any) (pgx.Rows, error) {
+    return pgxatomic.Run(ctx, r.pool. sql, args...)
+}
+
+func (r *orderRepo) CreateOrder(ctx context.Context, cost int) order {
+    rows, _ := r.query(ctx, "insert into order(cost) values ($1)", cost)
+    o, _ := pgx.CollectOneRow(rows, pgx.RowToStructByPos[order])
+    return o
 }
 ```
 
 2. Wrap usecase method calls within txFunc using `atomic.Run` function
 ```go
-_ = atomic.Run(context.Background(), pool, func(txCtx context.Context) error {
+_ = pgxatomic.Run(context.Background(), pool, func(txCtx context.Context) error {
     _ = orderService.Create(txCtx)
     _ = balanceService.Withdraw(txCtx)
     return nil
@@ -46,7 +50,7 @@ Or its possible to use `pgxatomic.runner`:
 conf, _ := pgxpool.ParseConfig("postgres://user:pass@localhost:5432/postgres")
 pool, _ := pgxpool.NewWithConfig(context.Background(), conf)
 
-r, _ := atomic.NewRunner(pool, pgx.TxOptions{})
+r, _ := pgxatomic.NewRunner(pool, pgx.TxOptions{})
 
 _ = r.Run(context.Background(), func(txCtx context.Context) error {
     _ = orderService.Create(txCtx)
