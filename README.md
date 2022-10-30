@@ -6,8 +6,9 @@ pgxatomic is a library of tools that allow you to implement transfer of clean co
 
 ## Problem
 It's common practice to use repository pattern these days so problem of atomic calls of different repositoty methods arises.
+
 For example there it is TWO entities `Order` and `UserBalance` and they has separate repositories. You want to create an order and withdraw amount of money from the user's account balance, of course it has to be atomic, there it is first solutions that come to mind:
-- run single query in a transaction or CTE within repository method of Order or UserBalance - impairs code readability by hiding data interaction with two different entities from other layers of application into one of repositories
+- run single query in a transaction or CTE within repository method of Order or UserBalance - impairs code readability by hiding data interaction with two different entities from other layers 
 - create separate repository `OrderUserBalance` and run query in a transaction or CTE within - increases amount of code to write and quickly turn into noodles from repositories with 1-2 methods and long ugly names
 
 And there it is also a third solution which is considered in this repository:
