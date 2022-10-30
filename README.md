@@ -15,7 +15,7 @@ And there it is also a third solution which is considered in this library:
 - ***`Order` and `UserBalance` has their own repositories with simple CRUD queries shares the same context with transaction or without, depends on the caller - cleanest implementation which allows to not worry about transaction in business logic or repository layers***
 
 ## Example Usage
-1. Repository method has to call wrapped query functions from the package. For example `atomic.Query`
+1. Repository method has to call wrapped query functions from the package. For example `pgxatomic.Query`
 ```go
 type orderRepo struct {
     pool *pgxpool.Pool
@@ -27,7 +27,7 @@ type order struct {
 }
 
 func (r *orderRepo) query(ctx, sql string, args ...any) (pgx.Rows, error) {
-    return pgxatomic.Run(ctx, r.pool. sql, args...)
+    return pgxatomic.Query(ctx, r.pool. sql, args...)
 }
 
 func (r *orderRepo) CreateOrder(ctx context.Context, cost int) order {
