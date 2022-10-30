@@ -32,15 +32,29 @@ func (r *repo) getUserByID(ctx context.Context, id uuid.UUID) user {
 }
 ```
 
-2. Wrap usecase method calls within txFunc in `atomic.Run` or `atomic.RunWithOpts` functions
+2. Wrap usecase method calls within txFunc directly in `atomic.Run` or `atomic.RunWithOpts` functions
 ```go
 _ = atomic.Run(context.Background(), pool, func(txCtx context.Context) error {
-    _ = userService.Get(txCtx)
     _ = orderService.Create(txCtx)
     _ = balanceService.Withdraw(txCtx)
     return nil
 })
 ```
+
+Or its possible to use `pgxatomic.runner`:
+```go
+conf, _ := pgxpool.ParseConfig("postgres://user:pass@localhost:5432/postgres")
+pool, _ := pgxpool.NewWithConfig(context.Background(), conf)
+
+r := atomic.NewRunner(pool)
+
+_ = r.Run(context.Background(), func(txCtx context.Context) error {
+    _ = orderService.Create(txCtx)
+    _ = balanceService.Withdraw(txCtx)
+    return nil
+})
+```
+
 Error handling is omitted on purpose, handle all errors!
 
 ## TODO
