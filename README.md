@@ -32,7 +32,7 @@ func (r *repo) getUserByID(ctx context.Context, id uuid.UUID) user {
 }
 ```
 
-2. Wrap usecase method calls within txFunc directly in `atomic.Run` or `atomic.RunWithOpts` functions
+2. Wrap usecase method calls within txFunc using `atomic.Run` function
 ```go
 _ = atomic.Run(context.Background(), pool, func(txCtx context.Context) error {
     _ = orderService.Create(txCtx)
@@ -59,8 +59,10 @@ Error handling is omitted on purpose, handle all errors!
 
 ## TODO
 1. Add examples
-2. Write code-generator for DB implementation
-3. Write code-generator for Runner implementation
+2. Add clean RunWithOpts function to run BeginTx
+3. Write tests
+4. Write code-generator for DB implementation
+5. Write code-generator for Runner implementation
 
 ## Credits
 - [Clean transactions in Golang hexagon](https://www.kaznacheev.me/posts/en/clean-transactions-in-hexagon)
