@@ -46,7 +46,7 @@ Or its possible to use `pgxatomic.runner`:
 conf, _ := pgxpool.ParseConfig("postgres://user:pass@localhost:5432/postgres")
 pool, _ := pgxpool.NewWithConfig(context.Background(), conf)
 
-r := atomic.NewRunner(pool, pgx.TxOptions{})
+r, _ := atomic.NewRunner(pool, pgx.TxOptions{})
 
 _ = r.Run(context.Background(), func(txCtx context.Context) error {
     _ = orderService.Create(txCtx)

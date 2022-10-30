@@ -8,22 +8,16 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type (
-	starter interface {
-		Begin(context.Context) (pgx.Tx, error)
-	}
-
-	starterWithOpts interface {
-		BeginTx(context.Context, pgx.TxOptions) (pgx.Tx, error)
-	}
-)
+type txStarter interface {
+	BeginTx(context.Context, pgx.TxOptions) (pgx.Tx, error)
+}
 
 type runner struct {
-	tx   starterWithOpts
+	tx   txStarter
 	opts pgx.TxOptions
 }
 
-func NewRunner(tx starterWithOpts, opts pgx.TxOptions) (*runner, error) {
+func NewRunner(tx txStarter, opts pgx.TxOptions) (*runner, error) {
 	if tx == nil {
 		return nil, errors.New("atomic: tx cannot be nil")
 	}
@@ -40,8 +34,8 @@ func (r *runner) Run(ctx context.Context, txFunc func(ctx context.Context) error
 }
 
 // Run executes txFunc within shared transaction.
-func Run(ctx context.Context, db starter, txFunc func(ctx context.Context) error) error {
-	tx, err := db.Begin(ctx)
+func Run(ctx context.Context, db txStarter, txFunc func(ctx context.Context) error) error {
+	tx, err := db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return fmt.Errorf("atomic: begin transaction - %w", err)
 	}
@@ -49,7 +43,7 @@ func Run(ctx context.Context, db starter, txFunc func(ctx context.Context) error
 }
 
 // runWithOpts executes txFunc withing shared transaction with pgx.TxOptions.
-func runWithOpts(ctx context.Context, db starterWithOpts, opts pgx.TxOptions, txFunc func(ctx context.Context) error) error {
+func runWithOpts(ctx context.Context, db txStarter, opts pgx.TxOptions, txFunc func(ctx context.Context) error) error {
 	tx, err := db.BeginTx(ctx, opts)
 	if err != nil {
 		return fmt.Errorf("atomic: begin transaction - %w", err)
