@@ -1,6 +1,6 @@
 # pgxatomic
 
-pgxatomic is a set of functions that can be used to wrap repository method calls by adding transaction in `context.Context` on the higher level using [pgx](https://github.com/jackc/pgx) driver.
+pgxatomic is a library of tools that allow you to implement transfer of control to transactions to a higher level by adding transaction in `context.Context` using [pgx][https://github.com/jackc/pgx] driver.
 
 ![schema](https://i.imgur.com/RpsfuBb.jpg)
 
@@ -13,7 +13,7 @@ For example there it is TWO entities `Order` and `UserBalance` and they has sepa
 And there it is also a third solution which is considered in this repository:
 - ***`Order` and `UserBalance` has their own repositories with simple CRUD queries shares the same context with transaction or without, depends on the caller - cleanest implementation which allows to not worry about transaction in business logic or repository layers***
 
-## Usage
+## Example Usage
 1. Repository method has to call wrapped query functions from the package. For example `atomic.Query`
 ```go
 type repo struct {
@@ -58,11 +58,8 @@ _ = r.Run(context.Background(), func(txCtx context.Context) error {
 Error handling is omitted on purpose, handle all errors!
 
 ## TODO
-1. Add examples
-2. Add BeginTx, BeginFunc, BeginFuncTx
-3. Write tests
-4. Write code-generator for DB implementation
-5. Write code-generator for Runner implementation
+1. Write tests
+2. Write code-generator for repository implementation (generate repo with query methods wrapping pgxatomic.Query etc)
 
 ## Credits
 - [Clean transactions in Golang hexagon](https://www.kaznacheev.me/posts/en/clean-transactions-in-hexagon)
