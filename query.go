@@ -1,4 +1,4 @@
-package atomic
+package pgxatomic
 
 import (
 	"context"
