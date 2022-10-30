@@ -2,6 +2,7 @@ package atomic
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
@@ -22,11 +23,15 @@ type runner struct {
 	opts pgx.TxOptions
 }
 
-func NewRunner(tx starterWithOpts, opts pgx.TxOptions) *runner {
+func NewRunner(tx starterWithOpts, opts pgx.TxOptions) (*runner, error) {
+	if tx == nil {
+		return nil, errors.New("atomic: tx cannot be nil")
+	}
+
 	return &runner{
 		tx:   tx,
 		opts: opts,
-	}
+	}, nil
 }
 
 // Run is a helper method for runWithOpts function.
