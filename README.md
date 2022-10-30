@@ -1,6 +1,6 @@
 # pgxatomic
 
-pgxatomic is a set of functions that can be used to wrap repository calls by propagating a transaction across `context.Context` from the top level using [pgx](https://github.com/jackc/pgx) driver.
+gxatomic is a set of functions that can be used to wrap repository calls by adding transaction in `context.Context` on the top level using [pgx](https://github.com/jackc/pgx) driver.
 
 ![schema](https://i.imgur.com/RpsfuBb.jpg)
 
