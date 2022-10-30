@@ -7,18 +7,38 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type starter interface {
-	Begin(context.Context) (pgx.Tx, error)
+type (
+	starter interface {
+		Begin(context.Context) (pgx.Tx, error)
+	}
+	starterWithOpts interface {
+		BeginTx(context.Context, pgx.TxOptions) (pgx.Tx, error)
+	}
+
+	txStarter interface {
+		starter
+		starterWithOpts
+	}
+)
+
+type runner struct {
+	tx txStarter
+}
+
+func NewRunner(tx txStarter) *runner {
+	return &runner{tx: tx}
+}
+
+func (r *runner) Run(ctx context.Context, txFunc func(ctx context.Context) error) error {
+	return Run(ctx, r.tx, txFunc)
+}
+
+func (r *runner) RunWithOpts(ctx context.Context, opts pgx.TxOptions, txFunc func(ctx context.Context) error) error {
+	return RunWithOpts(ctx, r.tx, opts, txFunc)
 }
 
 // Run executes txFunc within shared transaction.
-//
-// Implementation example:
-//
-//	func (t *transactor) RunAtomic(ctx context.Context, txFunc func(ctx context.Context) error) error {
-//			return atomic.Run(ctx, t.conn, txFunc)
-//		}
-func Run(ctx context.Context, db starter, txFunc func(ctx context.Context) error) error {
+func Run(ctx context.Context, db txStarter, txFunc func(ctx context.Context) error) error {
 	tx, err := db.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("atomic: begin transaction - %w", err)
@@ -26,11 +46,7 @@ func Run(ctx context.Context, db starter, txFunc func(ctx context.Context) error
 	return run(ctx, tx, txFunc)
 }
 
-type starterWithOpts interface {
-	BeginTx(context.Context, pgx.TxOptions) (pgx.Tx, error)
-}
-
-// RunWithOpts executes txFunc within shared transaction with pgx.TxOptions.
+// RunWithOpts executes txFunc within shared transaction with transaction options.
 func RunWithOpts(ctx context.Context, db starterWithOpts, opts pgx.TxOptions, txFunc func(ctx context.Context) error) error {
 	tx, err := db.BeginTx(ctx, opts)
 	if err != nil {
@@ -39,6 +55,7 @@ func RunWithOpts(ctx context.Context, db starterWithOpts, opts pgx.TxOptions, tx
 	return run(ctx, tx, txFunc)
 }
 
+// run executes txFunc with injected transaction in context and commits or rollback on error.
 func run(ctx context.Context, tx pgx.Tx, txFunc func(ctx context.Context) error) (err error) {
 	err = txFunc(withTx(ctx, tx))
 	if err != nil {
