@@ -1,6 +1,6 @@
 # pgxatomic
 
-pgxatomic is a library of tools that allow you to implement transfer of clean control to transactions to a higher level by adding transaction in a `context.Context` using [pgx][https://github.com/jackc/pgx] driver.
+pgxatomic is a library of tools that allow you to implement transfer of clean control to transactions to a higher level by adding transaction in a `context.Context` using [pgx](https://github.com/jackc/pgx) driver.
 
 ![schema](https://i.imgur.com/RpsfuBb.jpg)
 
