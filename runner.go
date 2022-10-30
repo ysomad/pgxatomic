@@ -44,11 +44,15 @@ func Run(ctx context.Context, db txStarter, txFunc func(ctx context.Context) err
 
 // runWithOpts executes txFunc withing shared transaction with pgx.TxOptions.
 func runWithOpts(ctx context.Context, db txStarter, opts pgx.TxOptions, txFunc func(ctx context.Context) error) error {
-	tx, err := db.BeginTx(ctx, opts)
-	if err != nil {
-		return fmt.Errorf("atomic: begin transaction - %w", err)
-	}
-	return run(ctx, tx, txFunc)
+	// tx, err := db.BeginTx(ctx, opts)
+	// if err != nil {
+	// 	return fmt.Errorf("atomic: begin transaction - %w", err)
+	// }
+	// return run(ctx, tx, txFunc)
+
+	return pgx.BeginTxFunc(ctx, db, opts, func(tx pgx.Tx) error {
+		return txFunc(withTx(ctx, tx))
+	})
 }
 
 // run executes txFunc with injected transaction in context and commits or rollback on error.
