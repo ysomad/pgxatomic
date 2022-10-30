@@ -10,7 +10,7 @@ For example there it is TWO entities `Order` and `UserBalance` and they has sepa
 - run single query in a transaction or CTE within repository method of Order or UserBalance - impairs code readability by hiding data interaction with two different entities from other layers of application into one of repositories
 - create separate repository `OrderUserBalance` and run query in a transaction or CTE within - increases amount of code to write and quickly turn into noodles from repositories with 1-2 methods and long ugly names
 
-And there it is also third solution which is considered within the unit of work pattern:
+And there it is also a third solution which is considered in this repository:
 - ***`Order` and `UserBalance` has their own repositories with simple CRUD queries shares the same context with transaction or without, depends on the caller - cleanest implementation which allows to not worry about transaction in business logic or repository layers***
 
 ## Usage
