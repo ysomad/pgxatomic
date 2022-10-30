@@ -12,27 +12,40 @@ type (
 		Begin(context.Context) (pgx.Tx, error)
 	}
 
-	txStarter interface {
-		starter
+	starterWithOpts interface {
+		BeginTx(context.Context, pgx.TxOptions) (pgx.Tx, error)
 	}
 )
 
 type runner struct {
-	tx txStarter
+	tx   starterWithOpts
+	opts pgx.TxOptions
 }
 
-func NewRunner(tx txStarter) *runner {
-	return &runner{tx: tx}
+func NewRunner(tx starterWithOpts, opts pgx.TxOptions) *runner {
+	return &runner{
+		tx:   tx,
+		opts: opts,
+	}
 }
 
-// Run is a helper method for Run function.
+// Run is a helper method for runWithOpts function.
 func (r *runner) Run(ctx context.Context, txFunc func(ctx context.Context) error) error {
-	return Run(ctx, r.tx, txFunc)
+	return runWithOpts(ctx, r.tx, r.opts, txFunc)
 }
 
 // Run executes txFunc within shared transaction.
-func Run(ctx context.Context, db txStarter, txFunc func(ctx context.Context) error) error {
+func Run(ctx context.Context, db starter, txFunc func(ctx context.Context) error) error {
 	tx, err := db.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("atomic: begin transaction - %w", err)
+	}
+	return run(ctx, tx, txFunc)
+}
+
+// runWithOpts executes txFunc withing shared transaction with pgx.TxOptions.
+func runWithOpts(ctx context.Context, db starterWithOpts, opts pgx.TxOptions, txFunc func(ctx context.Context) error) error {
+	tx, err := db.BeginTx(ctx, opts)
 	if err != nil {
 		return fmt.Errorf("atomic: begin transaction - %w", err)
 	}

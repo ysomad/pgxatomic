@@ -46,7 +46,7 @@ Or its possible to use `pgxatomic.runner`:
 conf, _ := pgxpool.ParseConfig("postgres://user:pass@localhost:5432/postgres")
 pool, _ := pgxpool.NewWithConfig(context.Background(), conf)
 
-r := atomic.NewRunner(pool)
+r := atomic.NewRunner(pool, pgx.TxOptions{})
 
 _ = r.Run(context.Background(), func(txCtx context.Context) error {
     _ = orderService.Create(txCtx)
@@ -59,7 +59,7 @@ Error handling is omitted on purpose, handle all errors!
 
 ## TODO
 1. Add examples
-2. Add clean RunWithOpts function to run BeginTx
+2. Add BeginTx, BeginFunc, BeginFuncTx
 3. Write tests
 4. Write code-generator for DB implementation
 5. Write code-generator for Runner implementation
