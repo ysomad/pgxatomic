@@ -12,13 +12,8 @@ type (
 		Begin(context.Context) (pgx.Tx, error)
 	}
 
-	starterWithOpts interface {
-		BeginTx(context.Context, pgx.TxOptions) (pgx.Tx, error)
-	}
-
 	txStarter interface {
 		starter
-		starterWithOpts
 	}
 )
 
