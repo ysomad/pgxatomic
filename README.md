@@ -8,7 +8,7 @@ pgxatomic is a library of tools that allow you to implement transfer of clean co
 It's common practice to use repository pattern these days so problem of atomic calls of different repositoty methods arises.
 
 For example there is TWO entities `Order` and `UserBalance` and they has separate repositories. You want to create an order and withdraw amount of money from the user's account balance, of course it has to be atomic, there is first solutions that come to mind:
-- run single query in a transaction or CTE within repository method of `Order` or `UserBalance` - impairs code readability by hiding data interaction with two different entities from other layers 
+- run single query in a transaction or CTE within repository method of `Order` or `UserBalance` - impairs code readability by hiding data interaction with two different entities from other layers
 - create separate repository `OrderUserBalance` and run query in a transaction or CTE within - increases amount of code to write and quickly turn into noodles from repositories with 1-2 methods and long ugly names
 
 And there is also a third solution which is considered in pgxatomic:
@@ -36,7 +36,7 @@ func (r *orderRepo) Insert(ctx context.Context, cost int) order {
 
 Or you can use `Query`, `QueryRow`, `Exec` functions directly from the library.
 
-2. Wrap usecase method calls within txFunc using `pgxatomic.runner` function
+2. Wrap usecase method calls within txFunc using `pgxatomic.wrapper.Wrap` function
 ```go
 conf, _ := pgxpool.ParseConfig("postgres://user:pass@localhost:5432/postgres")
 pool, _ := pgxpool.NewWithConfig(context.Background(), conf)
