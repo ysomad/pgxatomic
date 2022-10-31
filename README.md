@@ -16,7 +16,7 @@ And there is also a third solution which is considered in pgxatomic:
 
 ## Example Usage
 1. You can use `pgxatomic.Pool` within repository implementation. It's simple wrapper around `pgxpool.Pool` which
-is wrapping `Query`, `QueryRow` and `Exec` methods with `pgxatomic` versions.
+is wrapping `Query`, `QueryRow` and `Exec` methods with `pgxatomic` query functions.
 ```go
 type orderRepo struct {
     pool *pgxatomic.Pool // pgxpool.Pool wrapper
