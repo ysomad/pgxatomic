@@ -11,25 +11,25 @@ type txStarter interface {
 	BeginTx(context.Context, pgx.TxOptions) (pgx.Tx, error)
 }
 
-type runner struct {
+type wrapper struct {
 	db   txStarter
 	opts pgx.TxOptions
 }
 
-func NewRunner(db txStarter, opts pgx.TxOptions) (*runner, error) {
+func NewWrapper(db txStarter, opts pgx.TxOptions) (*wrapper, error) {
 	if db == nil {
 		return nil, errors.New("pgxatomic: db cannot be nil")
 	}
 
-	return &runner{
+	return &wrapper{
 		db:   db,
 		opts: opts,
 	}, nil
 }
 
-// Run executes txFunc within shared transaction.
-func (r *runner) Run(ctx context.Context, txFunc func(ctx context.Context) error) error {
-	return pgx.BeginTxFunc(ctx, r.db, r.opts, func(tx pgx.Tx) error {
+// Wrap wraps txFunc in pgx.BeginTxFunc with injected pgx.Tx into context.
+func (w *wrapper) Wrap(ctx context.Context, txFunc func(ctx context.Context) error) error {
+	return pgx.BeginTxFunc(ctx, w.db, w.opts, func(tx pgx.Tx) error {
 		return txFunc(withTx(ctx, tx))
 	})
 }
