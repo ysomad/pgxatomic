@@ -8,9 +8,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// Pool wraps pgxpool.Pool query methods with pgxatomic versions,
-// which is injecting pgx.Tx into context.
-// For example pgxpool.Pool and pgx.Conn implements it.
+// Pool wraps pgxpool.Pool query methods with pgxatomic corresponding functions
+// which injects pgx.Tx into context.
 type Pool struct {
 	*pgxpool.Pool
 }
