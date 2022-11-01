@@ -52,9 +52,5 @@ _ = w.Wrap(context.Background(), func(txCtx context.Context) error {
 
 Error handling is omitted on purpose, handle all errors!
 
-## TODO
-1. Write tests
-2. Write code-generator for repository implementation (generate repo with query methods wrapping pgxatomic.Query etc)
-
 ## Credits
 - [Clean transactions in Golang hexagon](https://www.kaznacheev.me/posts/en/clean-transactions-in-hexagon)
