@@ -13,19 +13,19 @@ type runner struct {
 	o pgx.TxOptions
 }
 
-func NewRunner(p *pgxpool.Pool, o pgx.TxOptions) (*runner, error) {
+func NewRunner(p *pgxpool.Pool, o pgx.TxOptions) (runner, error) {
 	if p == nil {
-		return nil, errors.New("pgxatomic: pool cannot be nil")
+		return runner{}, errors.New("pgxatomic: pool cannot be nil")
 	}
 
-	return &runner{
+	return runner{
 		p: p,
 		o: o,
 	}, nil
 }
 
 // Run wraps txFunc in pgx.BeginTxFunc with injected pgx.Tx into context and runs it.
-func (w *runner) Run(ctx context.Context, txFunc func(ctx context.Context) error) error {
+func (w runner) Run(ctx context.Context, txFunc func(ctx context.Context) error) error {
 	return pgx.BeginTxFunc(ctx, w.p, w.o, func(tx pgx.Tx) error {
 		return txFunc(withTx(ctx, tx))
 	})
