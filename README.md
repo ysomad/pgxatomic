@@ -28,7 +28,7 @@ type order struct {
 }
 
 func (r *orderRepo) Insert(ctx context.Context, cost int) order {
-    rows, _ := r.pool.Query(ctx, "insert into order(cost) values ($1)", cost)
+    rows, _ := r.pool.Query(ctx, "insert into order(cost) values ($1) RETURNING id, cost", cost)
     o, _ := pgx.CollectOneRow(rows, pgx.RowToStructByPos[order])
     return o
 }
@@ -36,14 +36,14 @@ func (r *orderRepo) Insert(ctx context.Context, cost int) order {
 
 Or you can use `Query`, `QueryRow`, `Exec` functions directly from the library.
 
-2. Wrap usecase method calls within txFunc using `pgxatomic.wrapper.Wrap` function
+2. Run wrapped usecase method calls within txFunc using `pgxatomic.runner.Run` function
 ```go
 conf, _ := pgxpool.ParseConfig("postgres://user:pass@localhost:5432/postgres")
 pool, _ := pgxpool.NewWithConfig(context.Background(), conf)
 
-w, _ := pgxatomic.NewWrapper(pool, pgx.TxOptions{})
+r, _ := pgxatomic.NewRunner(pool, pgx.TxOptions{})
 
-_ = w.Wrap(context.Background(), func(txCtx context.Context) error {
+_ = r.Run(context.Background(), func(txCtx context.Context) error {
     _ = orderService.Create(txCtx)
     _ = balanceService.Withdraw(txCtx)
     return nil
