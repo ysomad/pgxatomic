@@ -18,14 +18,14 @@ func NewPool(p *pgxpool.Pool) Pool {
 	return Pool{p: p}
 }
 
-func (p *Pool) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+func (p Pool) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
 	return Query(ctx, p.p, sql, args...)
 }
 
-func (p *Pool) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
+func (p Pool) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
 	return QueryRow(ctx, p.p, sql, args...)
 }
 
-func (p *Pool) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+func (p Pool) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
 	return Exec(ctx, p.p, sql, args...)
 }

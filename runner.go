@@ -5,28 +5,32 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type runner struct {
-	p *pgxpool.Pool
-	o pgx.TxOptions
+type db interface {
+	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
 }
 
-func NewRunner(p *pgxpool.Pool, o pgx.TxOptions) (runner, error) {
-	if p == nil {
-		return runner{}, errors.New("pgxatomic: pool cannot be nil")
-	}
+// runner starts transaction in Run method by wrapping txFunc using db,
+// pgx.Conn and pgxpool.Pool implements db.
+type runner struct {
+	db   db
+	opts pgx.TxOptions
+}
 
+func NewRunner(db db, o pgx.TxOptions) (runner, error) {
+	if db == nil {
+		return runner{}, errors.New("pgxatomic: db cannot be nil")
+	}
 	return runner{
-		p: p,
-		o: o,
+		db:   db,
+		opts: o,
 	}, nil
 }
 
 // Run wraps txFunc in pgx.BeginTxFunc with injected pgx.Tx into context and runs it.
-func (w runner) Run(ctx context.Context, txFunc func(ctx context.Context) error) error {
-	return pgx.BeginTxFunc(ctx, w.p, w.o, func(tx pgx.Tx) error {
+func (r runner) Run(ctx context.Context, txFunc func(ctx context.Context) error) error {
+	return pgx.BeginTxFunc(ctx, r.db, r.opts, func(tx pgx.Tx) error {
 		return txFunc(withTx(ctx, tx))
 	})
 }
