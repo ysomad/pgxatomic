@@ -2,6 +2,7 @@ package pgxatomic
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -14,8 +15,11 @@ type Pool struct {
 	p *pgxpool.Pool
 }
 
-func NewPool(p *pgxpool.Pool) Pool {
-	return Pool{p: p}
+func NewPool(p *pgxpool.Pool) (Pool, error) {
+	if p == nil {
+		return Pool{}, errors.New("pgxatomic: pool cannot be nil")
+	}
+	return Pool{p: p}, nil
 }
 
 func (p Pool) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {

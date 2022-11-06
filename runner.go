@@ -7,21 +7,22 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type db interface {
+type txStarter interface {
 	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
 }
 
 // runner starts transaction in Run method by wrapping txFunc using db,
 // pgx.Conn and pgxpool.Pool implements db.
 type runner struct {
-	db   db
+	db   txStarter
 	opts pgx.TxOptions
 }
 
-func NewRunner(db db, o pgx.TxOptions) (runner, error) {
+func NewRunner(db txStarter, o pgx.TxOptions) (runner, error) {
 	if db == nil {
 		return runner{}, errors.New("pgxatomic: db cannot be nil")
 	}
+
 	return runner{
 		db:   db,
 		opts: o,
