@@ -16,7 +16,7 @@ func Query(
 	sql string,
 	args ...any,
 ) (pgx.Rows, error) {
-	if tx := txFromContext(ctx); tx != nil {
+	if tx := TxFromContext(ctx); tx != nil {
 		return tx.Query(ctx, sql, args...)
 	}
 	return db.Query(ctx, sql, args...)
@@ -31,7 +31,7 @@ func Exec(
 	sql string,
 	args ...any,
 ) (pgconn.CommandTag, error) {
-	if tx := txFromContext(ctx); tx != nil {
+	if tx := TxFromContext(ctx); tx != nil {
 		return tx.Exec(ctx, sql, args...)
 	}
 	return db.Exec(ctx, sql, args...)
@@ -46,7 +46,7 @@ func QueryRow(
 	sql string,
 	args ...any,
 ) pgx.Row {
-	if tx := txFromContext(ctx); tx != nil {
+	if tx := TxFromContext(ctx); tx != nil {
 		return tx.QueryRow(ctx, sql, args...)
 	}
 	return db.QueryRow(ctx, sql, args...)
