@@ -18,14 +18,14 @@ type Runner struct {
 	opts pgx.TxOptions
 }
 
-func NewRunner(db txStarter, o pgx.TxOptions) (Runner, error) {
+func NewRunner(db txStarter, opts pgx.TxOptions) (Runner, error) {
 	if db == nil {
 		return Runner{}, errors.New("pgxatomic: db cannot be nil")
 	}
 
 	return Runner{
 		db:   db,
-		opts: o,
+		opts: opts,
 	}, nil
 }
 

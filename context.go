@@ -15,6 +15,9 @@ func WithTx(ctx context.Context, tx pgx.Tx) context.Context {
 
 // TxFromContext return pgx.Tx from context or nil if not found.
 func TxFromContext(ctx context.Context) pgx.Tx {
+	if ctx == nil {
+		return nil
+	}
 	if tx, ok := ctx.Value(txKey{}).(pgx.Tx); ok {
 		return tx
 	}
